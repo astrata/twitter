@@ -18,6 +18,9 @@ Leave "Callback URL" blank, you don't need it for the command line tests.
 # This may require you some additional work.
 % go build
 
+# Install the twitter command
+% go install github.com/astrata/twitter/cli/twitter
+
 # This will ask you for your PIN and will give you your user credentials.
 % twitter -key AAAA -secret BBBB
 

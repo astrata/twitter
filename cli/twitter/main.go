@@ -33,7 +33,7 @@ func main() {
 		return
 	}
 
-	client := twitter.New(oauth.Credentials{
+	client := twitter.New(&oauth.Credentials{
 		*consumerKey,
 		*consumerSecret,
 	})
