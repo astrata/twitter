@@ -20,13 +20,13 @@ type Client struct {
 	auth *oauth.Credentials
 }
 
-func New(credentials oauth.Credentials) *Client {
+func New(credentials *oauth.Credentials) *Client {
 	self := &Client{}
 	self.client = oauth.Client{
 		TemporaryCredentialRequestURI: "https://api.twitter.com/oauth/request_token",
 		ResourceOwnerAuthorizationURI: "https://api.twitter.com/oauth/authenticate",
 		TokenRequestURI: "https://api.twitter.com/oauth/access_token",
-		Credentials: credentials,
+		Credentials: *credentials,
 	}
 	return self
 }
@@ -74,6 +74,10 @@ func (self *Client) Request(endpoint string, params url.Values, data interface{}
 	return fmt.Errorf("Something wrong happened.\n")
 }
 
+func (self *Client) SetAuth(credentials *oauth.Credentials) {
+	self.auth = credentials
+}
+
 func (self *Client) Setup() error {
 
 	tmpCred, err := self.client.RequestTemporaryCredentials(http.DefaultClient, "", nil)
@@ -108,7 +112,7 @@ func (self *Client) Setup() error {
 
 	fmt.Printf("\nHere's your data:\n\n")
 
-	self.auth = auth
+	self.SetAuth(auth)
 
 	fmt.Printf("Token: %s\n", auth.Token)
 	fmt.Printf("Secret: %s\n", auth.Secret)
