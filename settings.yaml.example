@@ -1,0 +1,8 @@
+twitter:
+  app:
+    key: AAAA
+    secret: BBBB
+  user:
+    token: CCCC
+    secret: DDDD
+

@@ -1,18 +1,24 @@
+/*
+	Written by José Carlos Nieto <xiam@menteslibres.org>
+	(c) 2012 Astrata Software http://astrata.mx
+
+	MIT License
+*/
+
 package main
 
 import (
+	"flag"
+	"fmt"
 	"github.com/astrata/twitter"
 	"github.com/garyburd/go-oauth/oauth"
-	"flag"
 	"log"
-	"fmt"
 )
 
 var consumerKey = flag.String("key", "", "Consumer key")
 var consumerSecret = flag.String("secret", "", "Consumer secret")
 
 func main() {
-
 
 	flag.Parse()
 

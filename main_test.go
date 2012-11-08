@@ -1,11 +1,20 @@
+/*
+	Written by José Carlos Nieto <xiam@menteslibres.org>
+	(c) 2012 Astrata Software http://astrata.mx
+
+	MIT License
+*/
+
 package twitter
 
 import (
-	"testing"
-	"github.com/gosexy/yaml"
 	"fmt"
-	"github.com/gosexy/to"
 	"github.com/garyburd/go-oauth/oauth"
+	"github.com/gosexy/sugar"
+	"github.com/gosexy/to"
+	"github.com/gosexy/yaml"
+	"testing"
+	"time"
 )
 
 var SettingsFile = "settings.yaml"
@@ -19,9 +28,12 @@ func TestSettings(t *testing.T) {
 	if err != nil {
 		panic(err.Error())
 	}
+
 }
 
 func TestApi(t *testing.T) {
+
+	var err error
 
 	client := New(&oauth.Credentials{
 		to.String(conf.Get("twitter/app/key")),
@@ -33,11 +45,61 @@ func TestApi(t *testing.T) {
 		to.String(conf.Get("twitter/user/secret")),
 	})
 
-	data, err := client.GetTimeline()
+	_, err = client.VerifyCredentials()
 
 	if err != nil {
-		fmt.Printf("Test failed.\n")
+		t.Errorf("Test failed.\n")
 	}
 
-	fmt.Printf("%v\n", data)
+	_, err = client.HomeTimeline()
+
+	if err != nil {
+		t.Errorf("Test failed.\n")
+	}
+
+	_, err = client.MentionsTimeline()
+
+	if err != nil {
+		t.Errorf("Test failed.\n")
+	}
+
+	_, err = client.UserTimeline()
+
+	if err != nil {
+		t.Errorf("Test failed.\n")
+	}
+
+	_, err = client.RetweetsOfMe()
+
+	if err != nil {
+		t.Errorf("Test failed.\n")
+	}
+
+	_, err = client.Retweets(int64(21947795900469248))
+
+	if err != nil {
+		t.Errorf("Test failed.\n")
+	}
+
+	var status *sugar.Tuple
+	status, err = client.Update(fmt.Sprintf("Test message @ %s", time.Now()), nil)
+
+	if err != nil {
+		t.Errorf("Test failed.\n")
+	}
+
+	tweetId := to.Int64(status.Get("id_str"))
+
+	_, err = client.Destroy(tweetId)
+
+	if err != nil {
+		t.Errorf("Test failed.\n")
+	}
+
+	_, err = client.Retweet(int64(21947795900469248))
+
+	if err != nil {
+		t.Errorf("Test failed.\n")
+	}
+
 }
