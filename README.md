@@ -1,14 +1,14 @@
-# Twitter 1.1 API for Golang
+# Golang library for the Twitter 1.1 API
 
-This is a work in progress. The final product aims to be a [Go][1] library for the Twitter [1.1][2] API.
+This project aims to be a [Go][1] library for the Twitter [1.1][2] API.
 
 ## Want to help?
 
-Register your APP at https://dev.twitter.com/apps to get your Key and Secret. Leave "Callback URL" blank, you don't need it for the command line tests.
+Register your APP at https://dev.twitter.com/apps to get your Key and Secret.
 
-Get the source with [git][3]:
+Leave "Callback URL" blank, you don't need it for the command line tests.
 
-```
+```sh
 # Creating a dev directory
 % mkdir -p $GOPATH/src/github.com/astrata
 % cd $GOPATH/src/github.com/astrata
@@ -38,7 +38,10 @@ twitter:
 vim main.go
 ```
 
+This is not production ready.
+
+Read the docs online at http://go.pkgdoc.org/github.com/astrata/twitter
+
 [1]: http://golang.org
 [2]: https://dev.twitter.com/docs/api/1.1
-[3]: http://git-scm.com
 
