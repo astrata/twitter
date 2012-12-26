@@ -81,7 +81,7 @@ func TestApi(t *testing.T) {
 		t.Errorf("Test failed.\n")
 	}
 
-	var status *sugar.Tuple
+	var status *sugar.Map
 	status, err = client.Update(fmt.Sprintf("Test message @ %s", time.Now()), nil)
 
 	if err != nil {

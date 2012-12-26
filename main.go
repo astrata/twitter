@@ -114,8 +114,8 @@ func (self *Client) Setup() error {
 
 	https://dev.twitter.com/docs/api/1.1/get/account/verify_credentials
 */
-func (self *Client) VerifyCredentials() (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) VerifyCredentials() (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.get("/account/verify_credentials", nil, data)
 	return data, err
 }
@@ -180,8 +180,8 @@ func (self *Client) Retweets(id int64) (data *sugar.List, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/statuses/show/%3Aid
 */
-func (self *Client) Show(id int64) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) Show(id int64) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.get(fmt.Sprintf("/statuses/show/%d", id), nil, data)
 	return data, err
 }
@@ -191,8 +191,8 @@ func (self *Client) Show(id int64) (data *sugar.Tuple, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/post/statuses/destroy/%3Aid
 */
-func (self *Client) Destroy(id int64) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) Destroy(id int64) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.post(fmt.Sprintf("/statuses/destroy/%d", id), nil, nil, data)
 	return data, err
 }
@@ -202,8 +202,8 @@ func (self *Client) Destroy(id int64) (data *sugar.Tuple, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/post/statuses/retweet/%3Aid
 */
-func (self *Client) Retweet(id int64) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) Retweet(id int64) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.post(fmt.Sprintf("/statuses/retweet/%d", id), nil, nil, data)
 	return data, err
 }
@@ -213,8 +213,8 @@ func (self *Client) Retweet(id int64) (data *sugar.Tuple, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/post/statuses/update_with_media
 */
-func (self *Client) UpdateWithMedia(status string, params url.Values) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) UpdateWithMedia(status string, params url.Values) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 
 	if params == nil {
 		params = url.Values{}
@@ -232,7 +232,7 @@ func (self *Client) UpdateWithMedia(status string, params url.Values) (data *sug
 
 	https://dev.twitter.com/docs/api/1.1/post/statuses/update
 */
-func (self *Client) Update(message string, params url.Values) (data *sugar.Tuple, err error) {
+func (self *Client) Update(message string, params url.Values) (data *sugar.Map, err error) {
 
 	if params == nil {
 		params = url.Values{}
@@ -240,7 +240,7 @@ func (self *Client) Update(message string, params url.Values) (data *sugar.Tuple
 
 	params.Add("status", message)
 
-	data = &sugar.Tuple{}
+	data = &sugar.Map{}
 	err = self.post("/statuses/update", nil, params, data)
 
 	return data, err
@@ -251,8 +251,8 @@ func (self *Client) Update(message string, params url.Values) (data *sugar.Tuple
 
 	https://dev.twitter.com/docs/api/1.1/get/statuses/oembed
 */
-func (self *Client) Oembed(params url.Values) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) Oembed(params url.Values) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.get("/statuses/oembed", params, data)
 	return data, err
 }
@@ -262,8 +262,8 @@ func (self *Client) Oembed(params url.Values) (data *sugar.Tuple, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/search/tweets
 */
-func (self *Client) Search(params url.Values) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) Search(params url.Values) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.get("/statuses/search", params, data)
 	return data, err
 }
@@ -273,8 +273,8 @@ func (self *Client) Search(params url.Values) (data *sugar.Tuple, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/friends/ids
 */
-func (self *Client) Friends(params url.Values) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) Friends(params url.Values) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.get("/friends/ids", params, data)
 	return data, err
 }
@@ -284,8 +284,8 @@ func (self *Client) Friends(params url.Values) (data *sugar.Tuple, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/followers/ids
 */
-func (self *Client) Followers(params url.Values) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) Followers(params url.Values) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.get("/followers/ids", params, data)
 	return data, err
 }
@@ -306,8 +306,8 @@ func (self *Client) LookupUser(params url.Values) (data *sugar.List, err error) 
 
 	https://dev.twitter.com/docs/api/1.1/get/users/show
 */
-func (self *Client) ShowUser(params url.Values) (data *sugar.Tuple, err error) {
-	data = &sugar.Tuple{}
+func (self *Client) ShowUser(params url.Values) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 	err = self.get("/users/show", params, data)
 	return data, err
 }
