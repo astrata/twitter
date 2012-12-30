@@ -264,7 +264,7 @@ func (self *Client) Oembed(params url.Values) (data *sugar.Map, err error) {
 */
 func (self *Client) Search(params url.Values) (data *sugar.Map, err error) {
 	data = &sugar.Map{}
-	err = self.get("/statuses/search", params, data)
+	err = self.get("/search/tweets", params, data)
 	return data, err
 }
 
