@@ -8,24 +8,24 @@ package twitter
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/garyburd/go-oauth/oauth"
 	"github.com/gosexy/sugar"
-	"io/ioutil"
-	"net/http"
-	"mime/multipart"
-	"bytes"
-	"path"
-	"net/url"
 	"io"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
+	"net/url"
 	"os"
+	"path"
 	"strings"
 )
 
 type multipartBody struct {
 	ContentType string
-	Data *bytes.Buffer
+	Data        io.Reader
 }
 
 /*
@@ -250,7 +250,7 @@ func (self *Client) UpdateWithMedia(status string, params url.Values, files []st
 		reader.Close()
 	}
 
-	params = merge(url.Values{ "status": { status } }, params)
+	params = merge(url.Values{"status": {status}}, params)
 
 	//fullURI := Prefix + strings.Trim(endpoint, "/") + ".json"
 
@@ -266,7 +266,7 @@ func (self *Client) UpdateWithMedia(status string, params url.Values, files []st
 
 	//fmt.Printf("%v\n", buf)
 
-	req := &multipartBody{ body.FormDataContentType(), buf }
+	req := &multipartBody{body.FormDataContentType(), buf}
 
 	err = self.request("POST", endpoint, nil, nil, req, data)
 
@@ -282,7 +282,7 @@ func (self *Client) Update(status string, params url.Values) (data *sugar.Map, e
 	data = &sugar.Map{}
 
 	local := url.Values{
-		"status": { status },
+		"status": {status},
 	}
 
 	err = self.post("/statuses/update", nil, merge(local, params), data)
@@ -365,6 +365,11 @@ func (self *Client) ShowUser(params url.Values) (data *sugar.Map, err error) {
 */
 func (self *Client) request(method string, endpoint string, getParams url.Values, postParams url.Values, buf *multipartBody, data interface{}) error {
 
+	var requestURI string
+	var res *http.Response
+	var req *http.Request
+	var err error
+
 	if method != "GET" && method != "POST" {
 		return fmt.Errorf("Unknown request method: %s\n", method)
 	}
@@ -379,35 +384,37 @@ func (self *Client) request(method string, endpoint string, getParams url.Values
 
 	fullURI := Prefix + strings.Trim(endpoint, "/") + ".json"
 
-	var requestURI string
-	var res *http.Response
-	var err error
-
-	if method == "GET" {
-		self.client.SignParam(self.auth, method, fullURI, getParams)
-		requestURI = fullURI + "?" + getParams.Encode()
-		res, err = http.Get(requestURI)
-	} else {
-		requestURI = fullURI
-
-		if buf == nil {
-
-			self.client.SignParam(self.auth, method, fullURI, postParams)
-			res, err = http.PostForm(requestURI, postParams)
-
-		} else {
-			req, _ := http.NewRequest("POST", requestURI, buf.Data)
-
-			addr, _ := url.Parse(fullURI)
-
-			req.Header.Set("Content-Type", buf.ContentType)
-			req.Header.Set("Authorization", self.client.AuthorizationHeader(self.auth, method, addr, postParams))
-
-			client := &http.Client{}
-
-			res, err = client.Do(req)
+	if buf == nil {
+		if method == "POST" {
+			buf = &multipartBody{
+				"application/x-www-form-urlencoded; charset=UTF-8",
+				strings.NewReader(postParams.Encode()),
+			}
 		}
 	}
+
+	requestURI = fullURI + "?" + getParams.Encode()
+
+	if buf == nil {
+		req, err = http.NewRequest(method, requestURI, nil)
+		if err != nil {
+			return err
+		}
+	} else {
+		req, err = http.NewRequest(method, requestURI, buf.Data)
+		if err != nil {
+			return err
+		}
+		req.Header.Set("Content-Type", buf.ContentType)
+	}
+
+	addr, _ := url.Parse(requestURI)
+
+	req.Header.Set("Authorization", self.client.AuthorizationHeader(self.auth, method, addr, postParams))
+
+	client := &http.Client{}
+
+	res, err = client.Do(req)
 
 	if Debug == true {
 		fmt.Printf("%s %s\n", method, requestURI)

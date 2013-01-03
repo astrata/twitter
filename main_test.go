@@ -8,13 +8,13 @@
 package twitter
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/garyburd/go-oauth/oauth"
-	//"github.com/gosexy/sugar"
+	"github.com/gosexy/sugar"
 	"github.com/gosexy/to"
 	"github.com/gosexy/yaml"
 	"testing"
-	//"time"
+	"time"
 )
 
 var SettingsFile = "settings.yaml"
@@ -50,7 +50,6 @@ func TestApi(t *testing.T) {
 	if err != nil {
 		t.Errorf("Test failed: %s\n", err.Error())
 	}
-	/*
 
 	_, err = client.HomeTimeline(nil)
 
@@ -97,8 +96,7 @@ func TestApi(t *testing.T) {
 		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
-	tweetId := to.Int64(status.Get("id_str"))
-	*/
+	tweetId = to.Int64(status.Get("id_str"))
 
 	files := []string{
 		"_resources/test.jpg",
@@ -110,12 +108,10 @@ func TestApi(t *testing.T) {
 		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
-	/*
 	_, err = client.Retweet(int64(21947795900469248), nil)
 
 	if err != nil {
 		t.Errorf("Test failed: %s\n", err.Error())
 	}
-	*/
 
 }
