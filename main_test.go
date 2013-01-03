@@ -8,13 +8,13 @@
 package twitter
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/garyburd/go-oauth/oauth"
-	"github.com/gosexy/sugar"
+	//"github.com/gosexy/sugar"
 	"github.com/gosexy/to"
 	"github.com/gosexy/yaml"
 	"testing"
-	"time"
+	//"time"
 )
 
 var SettingsFile = "settings.yaml"
@@ -45,61 +45,77 @@ func TestApi(t *testing.T) {
 		to.String(conf.Get("twitter/user/secret")),
 	})
 
-	_, err = client.VerifyCredentials()
+	_, err = client.VerifyCredentials(nil)
 
 	if err != nil {
-		t.Errorf("Test failed.\n")
+		t.Errorf("Test failed: %s\n", err.Error())
+	}
+	/*
+
+	_, err = client.HomeTimeline(nil)
+
+	if err != nil {
+		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
-	_, err = client.HomeTimeline()
+	_, err = client.MentionsTimeline(nil)
 
 	if err != nil {
-		t.Errorf("Test failed.\n")
+		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
-	_, err = client.MentionsTimeline()
+	_, err = client.UserTimeline(nil)
 
 	if err != nil {
-		t.Errorf("Test failed.\n")
+		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
-	_, err = client.UserTimeline()
+	_, err = client.RetweetsOfMe(nil)
 
 	if err != nil {
-		t.Errorf("Test failed.\n")
+		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
-	_, err = client.RetweetsOfMe()
+	_, err = client.Retweets(int64(21947795900469248), nil)
 
 	if err != nil {
-		t.Errorf("Test failed.\n")
-	}
-
-	_, err = client.Retweets(int64(21947795900469248))
-
-	if err != nil {
-		t.Errorf("Test failed.\n")
+		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
 	var status *sugar.Map
 	status, err = client.Update(fmt.Sprintf("Test message @ %s", time.Now()), nil)
 
 	if err != nil {
-		t.Errorf("Test failed.\n")
+		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
 	tweetId := to.Int64(status.Get("id_str"))
 
-	_, err = client.Destroy(tweetId)
+	_, err = client.Destroy(tweetId, nil)
 
 	if err != nil {
-		t.Errorf("Test failed.\n")
+		t.Errorf("Test failed: %s\n", err.Error())
 	}
 
-	_, err = client.Retweet(int64(21947795900469248))
+	tweetId := to.Int64(status.Get("id_str"))
+	*/
+
+	files := []string{
+		"_resources/test.jpg",
+	}
+
+	_, err = client.UpdateWithMedia("Hello", nil, files)
 
 	if err != nil {
-		t.Errorf("Test failed.\n")
+		t.Errorf("Test failed: %s\n", err.Error())
 	}
+
+	/*
+	_, err = client.Retweet(int64(21947795900469248), nil)
+
+	if err != nil {
+		t.Errorf("Test failed: %s\n", err.Error())
+	}
+	*/
 
 }

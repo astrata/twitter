@@ -14,10 +14,19 @@ import (
 	"github.com/gosexy/sugar"
 	"io/ioutil"
 	"net/http"
+	"mime/multipart"
+	"bytes"
+	"path"
 	"net/url"
+	"io"
 	"os"
 	"strings"
 )
+
+type multipartBody struct {
+	ContentType string
+	Data *bytes.Buffer
+}
 
 /*
 	API prefix.
@@ -114,9 +123,9 @@ func (self *Client) Setup() error {
 
 	https://dev.twitter.com/docs/api/1.1/get/account/verify_credentials
 */
-func (self *Client) VerifyCredentials() (data *sugar.Map, err error) {
+func (self *Client) VerifyCredentials(params url.Values) (data *sugar.Map, err error) {
 	data = &sugar.Map{}
-	err = self.get("/account/verify_credentials", nil, data)
+	err = self.get("/account/verify_credentials", merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -125,9 +134,9 @@ func (self *Client) VerifyCredentials() (data *sugar.Map, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline
 */
-func (self *Client) HomeTimeline() (data *sugar.List, err error) {
+func (self *Client) HomeTimeline(params url.Values) (data *sugar.List, err error) {
 	data = &sugar.List{}
-	err = self.get("/statuses/home_timeline", nil, data)
+	err = self.get("/statuses/home_timeline", merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -136,9 +145,9 @@ func (self *Client) HomeTimeline() (data *sugar.List, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/statuses/mentions_timeline
 */
-func (self *Client) MentionsTimeline() (data *sugar.List, err error) {
+func (self *Client) MentionsTimeline(params url.Values) (data *sugar.List, err error) {
 	data = &sugar.List{}
-	err = self.get("/statuses/mentions_timeline", nil, data)
+	err = self.get("/statuses/mentions_timeline", merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -147,9 +156,9 @@ func (self *Client) MentionsTimeline() (data *sugar.List, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline
 */
-func (self *Client) UserTimeline() (data *sugar.List, err error) {
+func (self *Client) UserTimeline(params url.Values) (data *sugar.List, err error) {
 	data = &sugar.List{}
-	err = self.get("/statuses/user_timeline", nil, data)
+	err = self.get("/statuses/user_timeline", merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -158,9 +167,9 @@ func (self *Client) UserTimeline() (data *sugar.List, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/statuses/retweets_of_me
 */
-func (self *Client) RetweetsOfMe() (data *sugar.List, err error) {
+func (self *Client) RetweetsOfMe(params url.Values) (data *sugar.List, err error) {
 	data = &sugar.List{}
-	err = self.get("/statuses/retweets_of_me", nil, data)
+	err = self.get("/statuses/retweets_of_me", merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -169,9 +178,9 @@ func (self *Client) RetweetsOfMe() (data *sugar.List, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/statuses/retweets/%3Aid
 */
-func (self *Client) Retweets(id int64) (data *sugar.List, err error) {
+func (self *Client) Retweets(id int64, params url.Values) (data *sugar.List, err error) {
 	data = &sugar.List{}
-	err = self.get(fmt.Sprintf("/statuses/retweets/%d", id), nil, data)
+	err = self.get(fmt.Sprintf("/statuses/retweets/%d", id), merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -180,9 +189,9 @@ func (self *Client) Retweets(id int64) (data *sugar.List, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/get/statuses/show/%3Aid
 */
-func (self *Client) Show(id int64) (data *sugar.Map, err error) {
+func (self *Client) Show(id int64, params url.Values) (data *sugar.Map, err error) {
 	data = &sugar.Map{}
-	err = self.get(fmt.Sprintf("/statuses/show/%d", id), nil, data)
+	err = self.get(fmt.Sprintf("/statuses/show/%d", id), merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -191,9 +200,9 @@ func (self *Client) Show(id int64) (data *sugar.Map, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/post/statuses/destroy/%3Aid
 */
-func (self *Client) Destroy(id int64) (data *sugar.Map, err error) {
+func (self *Client) Destroy(id int64, params url.Values) (data *sugar.Map, err error) {
 	data = &sugar.Map{}
-	err = self.post(fmt.Sprintf("/statuses/destroy/%d", id), nil, nil, data)
+	err = self.post(fmt.Sprintf("/statuses/destroy/%d", id), nil, merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -202,9 +211,9 @@ func (self *Client) Destroy(id int64) (data *sugar.Map, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/post/statuses/retweet/%3Aid
 */
-func (self *Client) Retweet(id int64) (data *sugar.Map, err error) {
+func (self *Client) Retweet(id int64, params url.Values) (data *sugar.Map, err error) {
 	data = &sugar.Map{}
-	err = self.post(fmt.Sprintf("/statuses/retweet/%d", id), nil, nil, data)
+	err = self.post(fmt.Sprintf("/statuses/retweet/%d", id), nil, merge(url.Values{}, params), data)
 	return data, err
 }
 
@@ -213,18 +222,55 @@ func (self *Client) Retweet(id int64) (data *sugar.Map, err error) {
 
 	https://dev.twitter.com/docs/api/1.1/post/statuses/update_with_media
 */
-func (self *Client) UpdateWithMedia(status string, params url.Values) (data *sugar.Map, err error) {
+func (self *Client) UpdateWithMedia(status string, params url.Values, files []string) (data *sugar.Map, err error) {
+
+	endpoint := "/statuses/update_with_media"
+
 	data = &sugar.Map{}
 
-	if params == nil {
-		params = url.Values{}
+	buf := bytes.NewBuffer(nil)
+	body := multipart.NewWriter(buf)
+
+	for _, file := range files {
+
+		writer, err := body.CreateFormFile("media[]", path.Base(file))
+
+		if err != nil {
+			return nil, err
+		}
+
+		reader, err := os.Open(file)
+
+		if err != nil {
+			return nil, err
+		}
+
+		io.Copy(writer, reader)
+
+		reader.Close()
 	}
 
-	params.Add("status", status)
+	params = merge(url.Values{ "status": { status } }, params)
 
-	err = self.post("/statuses/update_with_media", nil, params, data)
+	//fullURI := Prefix + strings.Trim(endpoint, "/") + ".json"
 
-	return data, err
+	//self.client.SignParam(self.auth, "POST", fullURI, params)
+
+	for k, _ := range params {
+		for _, value := range params[k] {
+			body.WriteField(k, value)
+		}
+	}
+
+	body.Close()
+
+	//fmt.Printf("%v\n", buf)
+
+	req := &multipartBody{ body.FormDataContentType(), buf }
+
+	err = self.request("POST", endpoint, nil, nil, req, data)
+
+	return nil, err
 }
 
 /*
@@ -232,16 +278,14 @@ func (self *Client) UpdateWithMedia(status string, params url.Values) (data *sug
 
 	https://dev.twitter.com/docs/api/1.1/post/statuses/update
 */
-func (self *Client) Update(message string, params url.Values) (data *sugar.Map, err error) {
+func (self *Client) Update(status string, params url.Values) (data *sugar.Map, err error) {
+	data = &sugar.Map{}
 
-	if params == nil {
-		params = url.Values{}
+	local := url.Values{
+		"status": { status },
 	}
 
-	params.Add("status", message)
-
-	data = &sugar.Map{}
-	err = self.post("/statuses/update", nil, params, data)
+	err = self.post("/statuses/update", nil, merge(local, params), data)
 
 	return data, err
 }
@@ -319,7 +363,7 @@ func (self *Client) ShowUser(params url.Values) (data *sugar.Map, err error) {
 /*
 	An HTTP request from the client to the Twitter API.
 */
-func (self *Client) request(method string, endpoint string, getParams url.Values, postParams url.Values, data interface{}) error {
+func (self *Client) request(method string, endpoint string, getParams url.Values, postParams url.Values, buf *multipartBody, data interface{}) error {
 
 	if method != "GET" && method != "POST" {
 		return fmt.Errorf("Unknown request method: %s\n", method)
@@ -344,9 +388,25 @@ func (self *Client) request(method string, endpoint string, getParams url.Values
 		requestURI = fullURI + "?" + getParams.Encode()
 		res, err = http.Get(requestURI)
 	} else {
-		self.client.SignParam(self.auth, method, fullURI, postParams)
 		requestURI = fullURI
-		res, err = http.PostForm(requestURI, postParams)
+
+		if buf == nil {
+
+			self.client.SignParam(self.auth, method, fullURI, postParams)
+			res, err = http.PostForm(requestURI, postParams)
+
+		} else {
+			req, _ := http.NewRequest("POST", requestURI, buf.Data)
+
+			addr, _ := url.Parse(fullURI)
+
+			req.Header.Set("Content-Type", buf.ContentType)
+			req.Header.Set("Authorization", self.client.AuthorizationHeader(self.auth, method, addr, postParams))
+
+			client := &http.Client{}
+
+			res, err = client.Do(req)
+		}
 	}
 
 	if Debug == true {
@@ -386,12 +446,24 @@ func (self *Client) request(method string, endpoint string, getParams url.Values
 	Shortcut for GET requests.
 */
 func (self *Client) get(endpoint string, params url.Values, data interface{}) error {
-	return self.request("GET", endpoint, params, nil, data)
+	return self.request("GET", endpoint, params, nil, nil, data)
 }
 
 /*
 	Shortcut for POST requests.
 */
 func (self *Client) post(endpoint string, getParams url.Values, postParams url.Values, data interface{}) error {
-	return self.request("POST", endpoint, getParams, postParams, data)
+	return self.request("POST", endpoint, getParams, postParams, nil, data)
+}
+
+/*
+	Can merge default values with user provides ones.
+*/
+func merge(into url.Values, from url.Values) url.Values {
+	if from != nil {
+		for k, _ := range from {
+			into.Set(k, from.Get(k))
+		}
+	}
+	return into
 }
