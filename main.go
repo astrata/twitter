@@ -270,7 +270,7 @@ func (self *Client) UpdateWithMedia(status string, params url.Values, files []st
 
 	err = self.request("POST", endpoint, nil, nil, req, data)
 
-	return nil, err
+	return data, err
 }
 
 /*
